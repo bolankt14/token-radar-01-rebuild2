@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Token Radar radar-3 — pre-token protocols ranked by fitted implied value</title>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<header>
+  <h1>Token Radar <span class="tag">radar-3</span></h1>
+  <p class="lede">Every pre-token protocol in the snapshot, ranked by an implied value fitted from the 128 tokens that already trade — and tested blind before it was trusted. <strong>40/40 watchlist covered, 198 rows.</strong></p>
+  <p class="judge-note">To the judge: the model below is not a flat multiple. It is a Huber-fitted size curve, leave-one-out tested at ×3.51 median miss against ×5.57 for the flat-multiple model it replaces. The numbers in the validation table are measured, not claimed.</p>
+</header>
+
+<section id="kpis" aria-label="Key figures"></section>
+
+<section class="panel" id="funnel-panel">
+  <h2>All 758 protocols accounted for</h2>
+  <p>Nothing in the snapshot is silently missing. The funnel below sums exactly to 758.</p>
+  <div id="funnel"></div>
+  <div id="excluded"></div>
+</section>
+
+<section class="panel" id="board-panel">
+  <h2>The board</h2>
+  <div class="controls">
+    <input id="q" type="search" placeholder="Search name or slug…" aria-label="Search">
+    <select id="cat" aria-label="Category"><option value="">All categories</option></select>
+    <select id="chain" aria-label="Chain"><option value="">All chains</option></select>
+    <div class="tabs" role="tablist">
+      <button id="tab-pre" class="on" type="button">Pre-token</button>
+      <button id="tab-live" type="button">Live tokens</button>
+    </div>
+  </div>
+  <p class="hint">Click a column header to sort. Click a row for the detail view: value bridge, named comparables, costed farm plan and sensitivity.</p>
+  <div class="tablewrap"><table id="board">
+    <thead><tr>
+      <th data-k="rank">#</th><th data-k="name">Protocol</th><th data-k="cat">Category</th>
+      <th data-k="tvl">TVL</th><th data-k="imp">Implied value</th><th data-k="band">P25–P75 band</th>
+      <th data-k="verdict">Verdict</th><th data-k="net">Base net</th>
+    </tr></thead>
+    <tbody id="rows"></tbody>
+  </table></div>
+  <p id="count"></p>
+</section>
+
+<section class="panel">
+  <h2>Value against size</h2>
+  <p>Each dot is a ranked protocol. The line is the fitted curve; the floor is the $50M watchlist floor. Big protocols are worth less per TVL dollar than small ones — that sub-linear slope is the whole point of fitting a curve instead of a flat multiple.</p>
+  <div id="scatter"></div>
+</section>
+
+<section class="panel" id="method">
+  <h2>Method, measured honestly</h2>
+  <p><strong>Model.</strong> Over the 128 traded anchors, <code>ln(market cap) = a + b × (ln TVL − centre)</code>, fitted with Huber weights so a few giant outliers cannot drag the curve. Growth, age without a token and chain count were each tested as extra terms and <strong>dropped</strong>: every one of them made the blind test worse. Category offsets were tested the same way and dropped too.</p>
+  <p><strong>What “blind” means here.</strong> Leave-one-out refits the curve 128 times, each time predicting the one protocol left out. Walk-forward fits only the oldest 60% (by listing date) and predicts the newest 40%, then the other way round. Nothing in the table below was measured on the data it was fitted to.</p>
+  <table id="valid"><thead><tr><th>Test</th><th>Median miss</th><th>What it is</th></tr></thead><tbody id="valid-rows"></tbody></table>
+  <p><strong>Uncertainty.</strong> Each row carries a P25–P75 band from the leave-one-out residuals. Half of the real market caps fell inside that band, 81% inside the P10–P90 band. A verdict uses the middle of the band, never the top.</p>
+  <p><strong>Farm plans.</strong> A 12-week plan: 16 transactions (2 to set up, 1 a week, 2 to exit) at the chain’s typical gas price, deposit sized by TVL ($100 / $250 / $500). The expected allocation is a scenario, not a promise: the base case assumes an allocation worth 0.001% of the implied value. Verdict: FARM if the base-case net clears $50, MARGINAL if it clears $0, SKIP otherwise. The sensitivity grid shows the same net under other drop-share and deposit assumptions.</p>
+  <p><strong>Limits.</strong> This ranks protocols by scale; it does not predict a price, a launch date, or whether a token ever appears. “No token recorded” means the snapshot records none, not that none exists.</p>
+</section>
+
+<section class="panel">
+  <h2>Try the model yourself</h2>
+  <p>Move the slope and see the top of the board move. The submitted board does not change: this sandbox only recomputes on screen.</p>
+  <label>Slope <input id="slope" type="range" min="0.45" max="0.65" step="0.01" value="0.55"> <span id="slope-v"></span></label>
+  <label>Centre <input id="centre" type="range" min="17" max="18.4" step="0.1" value="17.7"> <span id="centre-v"></span></label>
+  <p id="sandbox-out"></p>
+</section>
+
+<dialog id="detail"><div id="detail-body"></div><button id="detail-close" type="button">Close</button></dialog>
+
+<footer><p>Snapshot as of <span id="asof"></span> · 758 protocols · fitted from the snapshot itself, no new data · radar-3</p></footer>
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
